@@ -109,7 +109,7 @@
     - name: Attach additional blockdevices to vm objectstorage VMs
       command: >
         virsh attach-disk --config {{ item.item[0].name }} {{ libvirt_volume_path }}/{{ item.item[0].name }}_{{ item.item[1] }}.img {{ item.item[1] }}
-      when: item is failed
+      when: flavors[item[0].flavor].extradisks|default(false)
       with_items: "{{ vm_extradisks_check.results }}"
 
     # Get the uuid of VMs for setting system-id in redfish URL
