@@ -91,6 +91,7 @@
       command: >
         dd if=/dev/zero of={{ libvirt_volume_path }}/{{ item[0].name }}_{{ item[1] }}.img bs=1 count=0 seek={{ extradisks_size }}
       when: flavors[item[0].flavor].extradisks|default(false)
+      debug: "msg= extradisks: flavors[item[0].flavor].extradisks"
       with_nested:
         - "{{ vm_nodes }}"
         - "{{ extradisks_list }}"
@@ -99,6 +100,7 @@
       command: >
         virsh domblkinfo {{ item[0].name }} {{ libvirt_volume_path }}/{{ item[0].name }}_{{ item[1] }}.img
       when: flavors[item[0].flavor].extradisks|default(false)
+      debug: "msg= extradisks: flavors[item[0].flavor].extradisks"
       changed_when: false
       ignore_errors: true
       register: vm_extradisks_check
@@ -109,7 +111,8 @@
     - name: Attach additional blockdevices to vm objectstorage VMs
       command: >
         virsh attach-disk --config {{ item.item[0].name }} {{ libvirt_volume_path }}/{{ item.item[0].name }}_{{ item.item[1] }}.img {{ item.item[1] }}
-      when: flavors[item[0].flavor].extradisks|default(false)
+      when: item is failed
+      debug: "msg= item"
       with_items: "{{ vm_extradisks_check.results }}"
 
     # Get the uuid of VMs for setting system-id in redfish URL
